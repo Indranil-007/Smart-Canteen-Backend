@@ -20,19 +20,13 @@ let serviceAccount;
 
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    console.log('🌐 Production environment detected. Loading credentials from environment variables...');
+    console.log('🌐 Production environment detected. Decoding Base64 credentials...');
     
-    // Clean up any weird double-escaped newlines or hidden spaces before parsing
-    let cleanedJsonString = process.env.FIREBASE_SERVICE_ACCOUNT
-      .replace(/\\n/g, '\n')
-      .trim();
-      
-    serviceAccount = JSON.parse(cleanedJsonString);
+    // Cleanly convert the Base64 block back into standard JSON text
+    const decodedJson = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('utf8');
+    serviceAccount = JSON.parse(decodedJson);
+  }
     
-    // 💡 THE CRUCIAL FIX: Fix the escaped newline characters in the private key string
-    if (serviceAccount.private_key) {
-      serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-    }
   } else {
     // Local Testing: Fall back to reading the serviceAccountKey.json file
     const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');

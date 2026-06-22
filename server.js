@@ -28,7 +28,6 @@ try {
       .trim();
       
     serviceAccount = JSON.parse(cleanedJsonString);
-  }
     
     // 💡 THE CRUCIAL FIX: Fix the escaped newline characters in the private key string
     if (serviceAccount.private_key) {

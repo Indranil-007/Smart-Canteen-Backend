@@ -20,9 +20,15 @@ let serviceAccount;
 
 try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    // Production (Render): Parse the environment variable string
     console.log('🌐 Production environment detected. Loading credentials from environment variables...');
+    
+    // Parse the JSON string
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    
+    // 💡 THE CRUCIAL FIX: Fix the escaped newline characters in the private key string
+    if (serviceAccount.private_key) {
+      serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+    }
   } else {
     // Local Testing: Fall back to reading the serviceAccountKey.json file
     const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');

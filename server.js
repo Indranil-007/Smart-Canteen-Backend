@@ -22,8 +22,13 @@ try {
   if (process.env.FIREBASE_SERVICE_ACCOUNT) {
     console.log('🌐 Production environment detected. Loading credentials from environment variables...');
     
-    // Parse the JSON string
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+    // Clean up any weird double-escaped newlines or hidden spaces before parsing
+    let cleanedJsonString = process.env.FIREBASE_SERVICE_ACCOUNT
+      .replace(/\\n/g, '\n')
+      .trim();
+      
+    serviceAccount = JSON.parse(cleanedJsonString);
+  }
     
     // 💡 THE CRUCIAL FIX: Fix the escaped newline characters in the private key string
     if (serviceAccount.private_key) {

@@ -15,31 +15,34 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ============ LOAD SERVICE ACCOUNT ============
-const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
-console.log('📂 Looking for serviceAccountKey.json at:', serviceAccountPath);
-
+// ============ LOAD SERVICE ACCOUNT & INITIALIZE FIREBASE ============
 let serviceAccount;
-try {
-  const rawData = fs.readFileSync(serviceAccountPath, 'utf8');
-  serviceAccount = JSON.parse(rawData);
-  console.log('✅ Service account key loaded successfully');
-  console.log('✅ Project ID:', serviceAccount.project_id);
-} catch (error) {
-  console.error('❌ Error loading serviceAccountKey.json:', error.message);
-  process.exit(1);
-}
 
-// ============ INITIALIZE FIREBASE ============
-console.log('🔄 Initializing Firebase...');
 try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    // Production (Render): Parse the environment variable string
+    console.log('🌐 Production environment detected. Loading credentials from environment variables...');
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } else {
+    // Local Testing: Fall back to reading the serviceAccountKey.json file
+    const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
+    console.log('📂 Local environment detected. Looking for serviceAccountKey.json at:', serviceAccountPath);
+    
+    const rawData = fs.readFileSync(serviceAccountPath, 'utf8');
+    serviceAccount = JSON.parse(rawData);
+  }
+
+  console.log('✅ Service account credentials parsed successfully.');
+  
+  // Initialize Firebase Admin SDK
+  console.log('🔄 Initializing Firebase...');
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
   });
   console.log('✅ Firebase app initialized');
+
 } catch (error) {
-  console.error('❌ Error initializing Firebase:', error.message);
-  console.error('Full error:', error);
+  console.error('❌ Critical Error initializing application:', error.message);
   process.exit(1);
 }
 

@@ -46,21 +46,28 @@ try {
 const db = admin.firestore();
 console.log('✅ Firestore database initialized');
 
-// ============ EXPRESS & SOCKET.IO SETUP ============
+// =========== EXPRESS & SOCKET.IO SETUP ===========
 const app = express();
 const server = http.createServer(app);
+
+// Use the environment variable, or fallback to localhost for local testing
+const allowedOrigin = process.env.CORS_ORIGIN || "http://localhost:3000";
+
 const io = new socketIo(server, {
-  cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"]
-  }
+    cors: {
+        origin: allowedOrigin,
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true
+    }
 });
 
-// ============ MIDDLEWARE ============
-app.use(cors());
+// =========== MIDDLEWARE ===========
+app.use(cors({
+    origin: allowedOrigin,
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 // ============ API ROUTES ============
 
 // 1. CREATE ORDER

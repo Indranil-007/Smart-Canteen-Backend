@@ -25,8 +25,6 @@ try {
     // Cleanly convert the Base64 block back into standard JSON text
     const decodedJson = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT, 'base64').toString('utf8');
     serviceAccount = JSON.parse(decodedJson);
-  }
-    
   } else {
     // Local Testing: Fall back to reading the serviceAccountKey.json file
     const serviceAccountPath = path.join(__dirname, 'serviceAccountKey.json');
